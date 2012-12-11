@@ -16,5 +16,11 @@
     "storage"
   ],
   "author": "Tõnis Tiigi <tonistiigi@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "kv": "~1.0.7"
+  },
+  "dependencies": {
+    "redis": "~0.8.2"
+  }
 }

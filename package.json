@@ -1,0 +1,20 @@
+{
+  "name": "redis-kv",
+  "version": "0.0.0",
+  "description": "Redis endpoint for kv",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonistiigi/redis-kv.git"
+  },
+  "keywords": [
+    "redis",
+    "kv",
+    "storage"
+  ],
+  "author": "Tõnis Tiigi <tonistiigi@gmail.com>",
+  "license": "MIT"
+}

@@ -6,7 +6,8 @@ var Stream = require('stream').Stream
 module.exports = function (url, exports) {
   exports = exports || {}
   
-  url = parse(url)
+  url = parse(url || '')
+  url.hostname = url.hostname
   url.port = url.port || 6379
   var prefix = url.path ? url.path.substring(1) : 'kv'
   

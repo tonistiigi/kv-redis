@@ -21,6 +21,6 @@
     "kv": "~1.0.7"
   },
   "dependencies": {
-    "redis": "~0.8.2"
+    "redisparse": "*"
   }
 }

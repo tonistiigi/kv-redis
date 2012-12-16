@@ -21,7 +21,7 @@ inherits(Redis, EventEmitter)
 
 Redis.prototype._connect = function() {
   var socket = this._socket = net.connect(this._port, this._host)
-  var parser = new Parser
+  var parser = new Parser({return_buffers: true})
   var self = this
 
   if (this._auth) {
@@ -63,7 +63,7 @@ Redis.prototype.exec = function(args) {
   // Accepts both strings and buffers.
   this._socket.write('*' + args.length + '\r\n')
   for (var i = 0; i < args.length; i++) {
-    this._socket.write('$' + Buffer.byteLength(args[i]) + '\r\n')
+    this._socket.write('$' + (args[i] instanceof Buffer ? args[i].length : Buffer.byteLength(args[i])) + '\r\n')
     this._socket.write(args[i])
     this._socket.write('\r\n')
   }

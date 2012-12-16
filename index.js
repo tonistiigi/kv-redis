@@ -20,19 +20,35 @@ module.exports = function (url, exports) {
   exports.put = function (key, opts) {
     var _key = prefix + ':' + key
     opts = opts || {flags: 'w'}
+    var ended, processing = 0
 
-    var ws = es.through(function (data) {
-      client.exec(['append', _key, data]).on('error', this.emit.bind(this, 'error'))
-    })
+    ws = new Stream
+    ws.writable = true
+
+    ws.write = function(data) {
+      processing++
+      var call = client.exec(['append', _key, data])
+      call.on('error', this.emit.bind(this, 'error'))
+      call.on('end', function() {
+        processing--
+        if (ended && !processing) {
+          ws.emit('close')
+        }
+      })
+    }
+    ws.end = function(data) {
+      if (data) ws.write(data)
+      if (!processing) {
+        ws.emit('close')
+      }
+      else {
+        ended = true
+      }
+    }
 
     if(opts.flags !== 'a') {
       client.exec(['set', _key, '']).on('error', ws.emit.bind(ws, 'error'))
     }
-
-    //remove readable api.
-    ws.readable = false
-    delete ws.pause
-    delete ws.resume
 
     return ws
   }

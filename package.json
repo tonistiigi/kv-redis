@@ -18,7 +18,8 @@
   "author": "Tõnis Tiigi <tonistiigi@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "kv": "~1.0.7"
+    "kv": "~1.0.7",
+    "optimist": "~0.3.5"
   },
   "dependencies": {
     "redisparse": "*"

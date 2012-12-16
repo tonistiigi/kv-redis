@@ -1,5 +1,7 @@
 var net = require('net')
 var Stream = require('stream').Stream
+var EventEmitter = require('events').EventEmitter
+var inherits = require('util').inherits
 var Parser = require('redisparse').Parser
 
 /*
@@ -16,15 +18,18 @@ function Redis(port, host, auth) {
   this._parser = null
   this._queue = []
 }
+inherits(Redis, EventEmitter)
 
 Redis.prototype._connect = function() {
   var socket = this._socket = net.connect(this._port, this._host)
   var parser = new Parser
   var self = this
 
-  socket.on('connect', function() {
-
-  })
+  if (this._auth) {
+    this.exec(['auth', this._auth]).on('error', function(err) {
+      self.emit('error', err)
+    })
+  }
 
   socket.on('data', parser.execute.bind(parser))
 

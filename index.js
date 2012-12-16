@@ -1,6 +1,6 @@
 var parse = require('url').parse
 var es = require('event-stream')
-var redis = require('redis')
+var Redis = require('./redis').Redis
 var Stream = require('stream').Stream
 
 module.exports = function (url, exports) {
@@ -11,26 +11,23 @@ module.exports = function (url, exports) {
   url.port = url.port || 6379
   var prefix = url.path ? url.path.substring(1) : 'kv'
 
-  var client = redis.createClient(url.port, url.hostname)
-  if (url.auth) {
-    client.auth(url.auth)
-  }
+  var client = new Redis(url.port, url.hostname, url.auth)
 
   client.on('error', function (err) {
     console.log('Redis error: ' + err)
   })
-  var noop = function() {}
 
   exports.put = function (key, opts) {
     var _key = prefix + ':' + key
     opts = opts || {flags: 'w'}
-    if(opts.flags !== 'a') {
-      client.set(_key, '', noop)
-    }
 
     var ws = es.through(function (data) {
-      client.append(_key,  data + '\n', noop)
+      client.exec(['append', _key, data]).on('error', this.emit.bind(this, 'error'))
     })
+
+    if(opts.flags !== 'a') {
+      client.exec(['set', _key, '']).on('error', ws.emit.bind(ws, 'error'))
+    }
 
     //remove readable api.
     ws.readable = false
@@ -42,29 +39,21 @@ module.exports = function (url, exports) {
 
   exports.get = function (key, opts) {
     var _key = prefix + ':' + key
-    var ws = new Stream
-    client.get(_key, function(err, reply) {
-      if (reply) {
-        var array = reply.split(/(\n)/)
-        if(!array[array.length - 1])
-          array.pop() //expecting an empty '' at the end.
-        array.forEach(function(d) {
-          ws.emit('data', d)
-        })
-      }
-      ws.emit('end')
-    })
-    return ws
+    return client.exec(['get', _key])
   }
 
   exports.has = function (key, callback) {
     var _key = prefix + ':' + key
-    client.exists(_key, callback)
+    client.exec(['exists', _key]).pipe(es.wait(function(err, result){
+      callback(err, !!+result)
+    }))
   }
 
   exports.del = function (key, callback) {
     var _key = prefix + ':' + key
-    client.del(_key, callback)
+    client.exec(['del', _key]).pipe(es.wait(function(err, result){
+      callback(err, !!+result)
+    }))
   }
 
   return exports

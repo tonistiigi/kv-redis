@@ -15,7 +15,6 @@ function Redis(port, host, auth) {
   this._host = host || 'localhost'
   this._auth = auth
   this._socket = null
-  this._parser = null
   this._queue = []
 }
 inherits(Redis, EventEmitter)
@@ -33,8 +32,12 @@ Redis.prototype._connect = function() {
 
   socket.on('data', parser.execute.bind(parser))
 
-  socket.on('error', function() {
-
+  socket.on('error', function(err) {
+    self._queue.forEach(function(stream) {
+      stream.emit('error', err)
+    })
+    self._queue = []
+    self._socket = null
   })
 
   parser.on('reply', function(data) {
@@ -50,9 +53,7 @@ Redis.prototype._connect = function() {
     self._queue.shift().emit('error', err)
   })
 
-  parser.on('error', function() {
-
-  })
+  parser.on('error', socket.emit.bind(socket, 'error'))
 
 }
 

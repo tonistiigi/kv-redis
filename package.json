@@ -1,6 +1,6 @@
 {
   "name": "kv-redis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Redis endpoint for kv",
   "main": "index.js",
   "scripts": {

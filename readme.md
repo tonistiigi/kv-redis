@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/tonistiigi/kv-redis.png)](http://travis-ci.org/tonistiigi/kv-redis)
+
 # kv-redis
 
 Redis endpoint for [dominictarr/kv](https://github.com/dominictarr/kv).

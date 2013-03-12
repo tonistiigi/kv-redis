@@ -66,9 +66,9 @@ tests.putBigBinary = function(done) {
   p.write(buffer)
   p.end()
 
-  p.on('close', function() {
-    kv2.get['raw']('binarytest').pipe(kv.put['raw'](hello))
-      .on('close', done)
+  p.once('close', function() {
+    kv2.get['raw'](hello).pipe(kv.put['raw'](hello))
+      .once('close', done)
   })
 }
 
